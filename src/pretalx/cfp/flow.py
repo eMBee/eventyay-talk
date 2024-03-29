@@ -389,48 +389,6 @@ class InfoStep(GenericFlowStep, FormFlowStep):
         request.submission = submission
 
 
-class QuestionsStep(GenericFlowStep, FormFlowStep):
-    identifier = "questions"
-    icon = "question-circle-o"
-    form_class = QuestionsForm
-    template_name = "cfp/event/submission_questions.html"
-    priority = 25
-
-    @property
-    def label(self):
-        return _("Questions")
-
-    @property
-    def _title(self):
-        return _("Tell us more!")
-
-    @property
-    def _text(self):
-        return _(
-            "Before we can save your proposal, we have some more questions for you."
-        )
-
-    def is_applicable(self, request):
-        return False
-
-    def get_form_kwargs(self):
-        result = super().get_form_kwargs()
-        info_data = self.cfp_session.get("data", {}).get("info", {})
-        result["target"] = ""
-        result["track"] = info_data.get("track")
-        result["submission_type"] = info_data.get("submission_type")
-        if not self.request.user.is_anonymous:
-            result["speaker"] = self.request.user
-        return result
-
-    def done(self, request, draft=False):
-        form = self.get_form(from_storage=True)
-        form.speaker = request.user
-        form.submission = request.submission
-        form.is_valid()
-        form.save()
-
-
 class UserStep(GenericFlowStep, FormFlowStep):
     identifier = "user"
     icon = "user-circle-o"
@@ -540,7 +498,6 @@ class ProfileStep(GenericFlowStep, FormFlowStep):
 
 DEFAULT_STEPS = (
     InfoStep,
-    QuestionsStep,
     UserStep,
     ProfileStep,
 )
